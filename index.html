@@ -2,21 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
+  <!-- 👇 THIS fixes the tiny mobile text -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>PLC Serial Key Generator</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+  <!-- 👇 Wrap everything in this container -->
+  <div class="container">
 
-  <h1>PLC Serial Key Generator</h1>
+    <h1>PLC Serial Key Generator</h1>
 
-  <label for="serial">PLC Serial Number</label><br>
-  <input type="text" id="serial" placeholder="Enter PLC serial number">
-  <br><br>
+    <label for="serial">PLC Serial Number</label>
+    <input type="text" id="serial" placeholder="Enter PLC serial number">
 
-  <button onclick="generateKey()">Generate Key</button>
+    <button onclick="generateKey()">Generate Key</button>
 
-  <h3>Generated Serial Key</h3>
-  <output id="result"></output>
+    <h3>Generated Serial Key</h3>
+    <div id="result"></div>
+
+  </div>
 
   <script src="script.js"></script>
 </body>
