@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HMI Licence Key Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --panel: #0f1318;
+      --border: #1e2a38;
+      --accent: #00e5ff;
+      --accent2: #00ff9d;
+      --warn: #ff6b35;
+      --text: #c8d8e8;
+      --dim: #4a6070;
+      --glow: 0 0 20px rgba(0,229,255,0.25);
+      --glow2: 0 0 20px rgba(0,255,157,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Grid bg */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .subtitle {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Card */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    /* Corner decorations */
+    .corner {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: var(--accent);
+      border-style: solid;
+      opacity: 0.6;
+    }
+    .corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+    .corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+    .corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+    .corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+    /* Section label */
+    .section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      opacity: 0.6;
+    }
+
+    /* Input group */
+    .input-group {
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: rgba(0,229,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--accent);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      letter-spacing: 3px;
+      padding: 14px 18px;
+      outline: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--dim);
+      letter-spacing: 2px;
+    }
+
+    /* Code input */
+    .code-input {
+      background: rgba(255,107,53,0.04);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--warn);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      letter-spacing: 3px;
+      padding: 14px 18px;
+      width: 140px;
+      outline: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .code-input:focus {
+      border-color: var(--warn);
+      box-shadow: 0 0 20px rgba(255,107,53,0.2);
+    }
+
+    /* Buttons */
+    .btn {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      box-shadow: var(--glow);
+    }
+
+    .btn-generate {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      letter-spacing: 4px;
+      margin-top: 4px;
+    }
+
+    /* Result */
+    .result-box {
+      background: rgba(0,255,157,0.04);
+      border: 1px solid rgba(0,255,157,0.3);
+      border-radius: 4px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    }
+
+    .result-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent2);
+      opacity: 0.7;
+      margin-bottom: 10px;
+    }
+
+    .result-key {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(22px, 4vw, 36px);
+      letter-spacing: 4px;
+      color: var(--accent2);
+      text-shadow: 0 0 30px rgba(0,255,157,0.4);
+      word-break: break-all;
+      margin-bottom: 16px;
+    }
+
+    .result-key.empty {
+      color: var(--dim);
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid rgba(0,255,157,0.4);
+      color: var(--accent2);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent2);
+      color: var(--bg);
+      box-shadow: var(--glow2);
+    }
+
+    /* Error */
+    .error-msg {
+      color: #ff4d4d;
+      font-size: 12px;
+      letter-spacing: 1px;
+      margin-top: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      display: none;
+    }
+
+    /* Blinking cursor effect */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--accent);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    /* Glow pulse on result */
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(0,255,157,0.1); }
+      50% { box-shadow: 0 0 30px rgba(0,255,157,0.3); }
+    }
+
+    .result-box.has-result {
+      animation: glowPulse 2.5s ease-in-out infinite;
+    }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 500px) {
+      .card { padding: 20px; }
+      .input-row { flex-direction: column; }
+      .code-input { width: 100%; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <header>    
+    <h1>HMI <span>Licence</span> Key</h1>
+    <div class="subtitle">Generator v1.0</div>
+  </header>
+
+  <div class="card">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <!-- Serial Number Input -->
+    <div class="input-group">
+      <div class="section-label">// Input Parameters</div>
+      <label>HMI Serial Number</label>
+      <div class="input-row">
+        <input type="text" id="serialInput" maxlength="16" placeholder="e.g. 0030D8061DE2" autocomplete="off" spellcheck="false" />
+        <button class="btn" onclick="clearAll()">Clear</button>
+      </div>
+      <div class="error-msg" id="serialError">Serial number must be 12 characters (hex)</div>
+    </div>
+
+    <!-- Code Input -->
+    <div class="input-group">
+      <label>Product Code</label>
+      <div class="input-row">
+        <input type="text" id="codeInput" maxlength="3" placeholder="" class="code-input" autocomplete="off" spellcheck="false" />
+        <button class="btn btn-generate" onclick="generate()">⚡ Generate Key</button>
+      </div>
+      <div class="error-msg" id="codeError">Code must be 3 characters</div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-box" id="resultBox">
+      <div class="result-label">// Licence Key Output</div>
+      <div class="result-key empty" id="resultKey">AWAITING INPUT<span class="cursor"></span></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyKey()" style="display:none">⊞ Copy Key</button>
+    </div>
+  </div>
+
+  <footer>HMI Licence Key Generator &nbsp;|&nbsp; GitHub Pages</footer>
+</div>
+
+<script>
+  // Mirror Excel logic exactly:
+  // Row 2: split serial into chars (up to 16, pad with 0)
+  // Row 3: ASCII of each char (CODE function), 0 if empty
+  // Row 4: Code (3 chars)
+  // Row 5: ASCII of code chars
+  // B6: SUM(C3:R3) + SUM(C5:E5)  → sum of serial ASCII + code ASCII
+  // B7: B6 * 411005               → multiply
+  // Row 10: HEX2DEC of each serial char (first 12 chars only)
+  // C11: concatenate HEX2DEC values (cols C–N = chars 1–12)
+  // B11: C11 + 224
+
+  function hexToDec(ch) {
+    // HEX2DEC: treat each character as a hex digit
+    const val = parseInt(ch, 16);
+    return isNaN(val) ? 0 : val;
+  }
+
+  function charCode(ch) {
+    if (!ch || ch === '') return 0;
+    return ch.charCodeAt(0);
+  }
+
+  function generate() {
+    const serial = document.getElementById('serialInput').value.trim().toUpperCase();
+    const code = document.getElementById('codeInput').value.trim().toUpperCase();
+
+    // Validate
+    let valid = true;
+    document.getElementById('serialError').style.display = 'none';
+    document.getElementById('codeError').style.display = 'none';
+
+    if (serial.length < 1 || serial.length > 16) {
+      document.getElementById('serialError').style.display = 'block';
+      document.getElementById('serialError').textContent = 'Serial number must be 1–16 characters';
+      valid = false;
+    }
+
+    if (code.length !== 3) {
+      document.getElementById('codeError').style.display = 'block';
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    // Row 2: serial split into 16 slots (pad with empty string)
+    const serialChars = [];
+    for (let i = 0; i < 16; i++) {
+      serialChars.push(i < serial.length ? serial[i] : '');
+    }
+
+    // Row 3: ASCII of each serial char (positions 0–15, i.e. C–R)
+    const serialASCII = serialChars.map(ch => charCode(ch));
+
+    // Row 4 / 5: Code chars (3 chars)
+    const codeChars = [code[0] || '', code[1] || '', code[2] || ''];
+    const codeASCII = codeChars.map(ch => charCode(ch));
+
+    // B6: SUM(C3:R3) + SUM(C5:E5)
+    const sumSerial = serialASCII.reduce((a, b) => a + b, 0);
+    const sumCode = codeASCII.reduce((a, b) => a + b, 0);
+    const total = sumSerial + sumCode;
+
+    // B7: total * 411005
+    const multiplied = total * 411005;
+
+    // Row 10: HEX2DEC of first 12 serial chars (C–N)
+    const hexDecVals = [];
+    for (let i = 0; i < 12; i++) {
+      hexDecVals.push(serialChars[i] !== '' ? hexToDec(serialChars[i]) : 0);
+    }
+
+    // C11: concatenate all HEX2DEC values
+    const concatenated = hexDecVals.join('');
+
+    // B11: parseInt(C11) + 224
+    const finalKey = parseInt(concatenated, 10) + 224;
+
+    // Show result
+    const resultEl = document.getElementById('resultKey');
+    const box = document.getElementById('resultBox');
+    resultEl.classList.remove('empty');
+    resultEl.textContent = finalKey.toLocaleString().replace(/,/g, '');
+    resultEl.dataset.key = String(finalKey);
+    box.classList.add('has-result');
+    document.getElementById('copyBtn').style.display = 'inline-block';
+  }
+
+  function copyKey() {
+    const key = document.getElementById('resultKey').dataset.key;
+    if (!key) return;
+    navigator.clipboard.writeText(key).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => btn.textContent = '⊞ Copy Key', 2000);
+    });
+  }
+
+  function clearAll() {
+    document.getElementById('serialInput').value = '';
+    document.getElementById('codeInput').value = '';
+    document.getElementById('serialError').style.display = 'none';
+    document.getElementById('codeError').style.display = 'none';
+    const resultEl = document.getElementById('resultKey');
+    resultEl.classList.add('empty');
+    resultEl.innerHTML = 'AWAITING INPUT<span class="cursor"></span>';
+    delete resultEl.dataset.key;
+    document.getElementById('resultBox').classList.remove('has-result');
+    document.getElementById('copyBtn').style.display = 'none';
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') generate();
+  });
+</script>
+</body>
+</html>
